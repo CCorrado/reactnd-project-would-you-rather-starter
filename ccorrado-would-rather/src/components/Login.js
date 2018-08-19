@@ -1,32 +1,42 @@
 import {connect} from 'react-redux'
 import React, {Component} from 'react'
+import {setAuthedUser} from "../actions/authedUser";
 
 class Login extends Component {
-    selectedUser
 
-    login = (e, id) => {
-        e.preventDefault()
-        //TODO navigate user to the dashboard to view/answer/create questions
+    constructor(props) {
+        super(props);
+        this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event) {
-        this.selectedUser.user = event.target.value
+    login = (e) => {
+        e.preventDefault()
+        const {dispatch, authedUser} = this.props
+
+        dispatch(setAuthedUser({
+            authedUser
+        }))
+    }
+
+    handleChange(e) {
+        this.props.authedUser = e.target.value
     }
 
     render() {
-        const {users} = this.props.users
-
         return (
             <div>
                 <h3 className='center'>Sign In</h3>
-                <ul className='user-dropdown'>
-                    <select value={this.selectedUser} onChange={this.handleChange}>
-                        {users.map((user) => (
-                            <option value={user.id}>{user.name}</option>
-                        ))}
-                    </select>
-                </ul>
-                <button className='sign-in-button' onClick={(e) => this.login(e, this.selectedUser.user.id)}>
+                {this.props.loading === true ? null :
+                    <ul className='user-dropdown'>
+                        <select value={this.props.authedUser} onChange={this.handleChange}>
+                            {
+                                Object.values(this.props.users).map((user) => (
+                                    <option value={user.id}>{user.name}</option>
+                                ))}
+                        </select>
+                    </ul>
+                }
+                <button className='sign-in-button' onClick={(e) => this.login(e)}>
                     Sign In
                 </button>
             </div>
@@ -34,10 +44,12 @@ class Login extends Component {
     }
 }
 
-function mapStateToProps({authedUser, users}) {
+function mapStateToProps({authedUser, users, questions}) {
     return {
-        loading: authedUser === null,
-        users
+        loading: Object.keys(users).length === 0,
+        users,
+        authedUser,
+        questions
     }
 }
 
